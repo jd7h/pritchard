@@ -12,4 +12,7 @@ and similarity to earlier advisories.
 
 ### Planned functionality
 * simple scraper
-
+* crawling
+* dataset
+* keyword analysis
+* frequency analysis
