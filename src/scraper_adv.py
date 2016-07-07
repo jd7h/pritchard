@@ -71,7 +71,7 @@ def main():
 
 	new_adv = 0;
 
-	for i in range(1,10):
+	for i in range(1,1):
 		linklist = get_urls_from_page(starturl,i,baseurl)
 		#D print("linklist:",linklist);
 		new_advisories = (get_adv_from_links(linklist,titlestring))
@@ -88,6 +88,10 @@ def main():
 
 	with open('data.txt', 'w+') as outfile:
 		json.dump(advisories, outfile)
+	testcase = "NCSC-2016-0606 [1.00]"
+	parsefields = ['Titel','Advisory ID', 'Versie', 'Kans', 'CVE ID', 'Schade', 'Uitgiftedatum', 'Toepassing', 'Versie(s)', 'Platform(s)', 'Update', 'Gevolgen', 'Beschrijving', 'Mogelijke oplossingen', 'Hyperlinks', 'Vrijwaringsverklaring']
+	return advisories,testcase,parsefields
+
 
 if __name__ == "__main__":
 	main()

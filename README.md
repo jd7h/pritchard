@@ -2,7 +2,7 @@
 Data mining on public security advisories.
 
 ### Etymology
-This repository was named after [Francis Pritchard](http://deusex.wikia.com/wiki/Francis_Pritchard), the sassy head of Security from Deux Ex: Human Revolution.
+This repository was named after [Francis Pritchard](http://deusex.wikia.com/wiki/Francis_Pritchard), the snarky head of Security from Deux Ex: Human Revolution.
 
 ### Idea
 I want to find out whether we can successfully assign 
