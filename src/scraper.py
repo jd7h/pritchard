@@ -2,6 +2,8 @@
 
 import urllib.request
 from bs4 import BeautifulSoup
+import json
+import os.path
 
 def make_page_url(sourceurl,pagenumber):
 	return sourceurl + "page=" + str(pagenumber)
@@ -30,6 +32,7 @@ def get_adv_from_links(urllist,titlestring):
 	# open link and find advisory
 	advisories = {}
 	for url in urllist:
+		#D print("Opening url: ",url)
 		soup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
 		advisory = soup.find(class_="advisoryitem")
 
@@ -60,11 +63,31 @@ def main():
 	titlestring = sourcefile.readline().rstrip()
 	sourcefile.close()
 
-	linklist = get_urls_from_page(starturl,1,baseurl)
-	advisories = get_adv_from_links(linklist,titlestring)
+	advisories = {}
+	if os.path.isfile("data.txt"):
+		with open("data.txt","r") as infile:
+			advisories.update(json.load(infile))
+			print("Loaded previously scraped advisories.")
+
+	new_adv = 0;
+
+	for i in range(1,10):
+		linklist = get_urls_from_page(starturl,i,baseurl)
+		#D print("linklist:",linklist);
+		new_advisories = (get_adv_from_links(linklist,titlestring))
+		for key in new_advisories.keys():
+			if key not in advisories:
+				advisories[key]=new_advisories[key]
+				new_adv+=1
 	
-	for a in advisories:
-		print(a,advisories[a][0:100])
+	#for a in advisories:
+	#	print(a,advisories[a][0:100])
+
+	print(len(advisories), "advisories in database.")
+	print(new_adv, "advisories added.")
+
+	with open('data.txt', 'w+') as outfile:
+		json.dump(advisories, outfile)
 
 if __name__ == "__main__":
 	main()
