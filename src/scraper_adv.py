@@ -54,7 +54,7 @@ def get_adv_from_links(urllist,titlestring):
 		if advisoryid == "":
 			print("Error: no advisory ID found")
 		advisorytext = advisory.find("pre")
-		advisories[advisoryid] = advisorytext.prettify()
+		advisories[advisoryid] = advisorytext.get_text()
 		#D print(advisorytext)
 	print(len(advisories),"advisories parsed from source.")
 	print("done.")
@@ -103,9 +103,8 @@ def main():
 		json.dump(advisories, outfile)
 
 	# a simple testcase for debugging
-	testcase = "NCSC-2016-0606 [1.00]"
-	parsefields = ['Titel','Advisory ID', 'Versie', 'Kans', 'CVE ID', 'Schade', 'Uitgiftedatum', 'Toepassing', 'Versie(s)', 'Platform(s)', 'Update', 'Gevolgen', 'Beschrijving', 'Mogelijke oplossingen', 'Hyperlinks', 'Vrijwaringsverklaring']
-	return advisories,testcase,parsefields
+	testcase = "NCSC-2016-0570 [1.02]"
+	return advisories,testcase
 
 
 if __name__ == "__main__":
