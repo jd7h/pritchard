@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+import json
+import os.path
+import html
+
 def parse_advisory(s):
 	fields = ['<pre>','Titel','Advisory ID', 'Versie', 'Kans', 'CVE ID', 'Schade', 'Uitgiftedatum', 'Toepassing', 'Versie(s)', 'Platform(s)','Update', 'Samenvatting', 'Gevolgen', 'Beschrijving', 'Mogelijke oplossingen', 'Hyperlinks', 'Vrijwaringsverklaring','-----BEGIN','restfooter']
 	lhs = ""
@@ -21,7 +25,7 @@ def parse_advisory(s):
 			if i>0:
 				#if field[previousfield] in ['Titel','Advisory ID', 'Versie', 'Kans', 'CVE ID', 'Schade', 'Uitgiftedatum', 'Toepassing', 'Versie(s)', 'Platform(s)']:
 				#	lhs = "".join(lhs.split(" : ")) # sanitize 
-				record[fields[previousfield]]=lhs
+				record[fields[previousfield]]=html.unescape(lhs)
 				previousfield = i
 
 	# sanitize colons from values
@@ -29,17 +33,35 @@ def parse_advisory(s):
 		record[fields[i]] = "".join(record[fields[i]].split(":",1)).strip() #split on first semi-colon, join list, remove all leading and trailing whitespace
 
 	# split "Schade" in rating and description
-	record['Schade'],record['Schade description'] = record['Schade'].split(" ",1)
+	splitresult = record['Schade'].split(" ",1)
+	if len(splitresult)>1:
+		record['Schade'],record['Schade description'] = splitresult
 
 	return record
 
-def main(advisories):
+def parse(advisories):
 	print("Parsing",len(advisories),"advisories.")
 	records = []
 	for adv in advisories:
-		records.append(parse_advisory(adv))
-	return records
-	
+		records.append(parse_advisory(advisories[adv]))
+	return records	
+
+def main():
+	advisories = {}
+
+	# we open data.txt
+	if os.path.isfile("data.txt"):
+		with open("data.txt","r") as infile:
+			advisories.update(json.load(infile))
+			print("Loaded",len(advisories),"previously scraped advisories.")
+
+	records = parse(advisories)
+
+	# we write advisories to JSON-dump
+	with open('primary_advisories.txt', 'w+') as outfile:
+		json.dump(records, outfile)
+
+	return advisories,records
 
 if __name__ == "__main__":
 	main()

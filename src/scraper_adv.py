@@ -74,8 +74,8 @@ def main():
 
 	advisories = {}
 	# load advisories we already scraped
-	if os.path.isfile("data.txt"):
-		with open("data.txt","r") as infile:
+	if os.path.isfile("raw.txt"):
+		with open("raw.txt","r") as infile:
 			advisories.update(json.load(infile))
 			print("Loaded previously scraped advisories.")
 
@@ -99,12 +99,10 @@ def main():
 	print(new_adv, "advisories added.")
 
 	# we write advisories to JSON-dump
-	with open('data.txt', 'w+') as outfile:
+	with open('raw.txt', 'w+') as outfile:
 		json.dump(advisories, outfile)
 
-	# a simple testcase for debugging
-	testcase = "NCSC-2016-0570 [1.02]"
-	return advisories,testcase
+	return advisories
 
 
 if __name__ == "__main__":
