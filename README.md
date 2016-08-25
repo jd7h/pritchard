@@ -17,7 +17,8 @@ and similarity to earlier advisories.
 * parsed advisories are saved as JSON-object (parser.py)
 * url-extractor to find all urls present in the advisories (scraper_ref.py)
 
-```[jd7h@reinaert]$ cat urls.txt | cut -d'/' -f3 | sort | uniq -c | sort -nr | head 
+```
+[jd7h@reinaert]$ cat urls.txt | cut -d'/' -f3 | sort | uniq -c | sort -nr | head 
      65 cve.mitre.org
      40 lists.fedoraproject.org
      34 lists.opensuse.org
