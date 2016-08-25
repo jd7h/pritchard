@@ -5,9 +5,15 @@ from bs4 import BeautifulSoup
 import json
 import os.path
 
+# combines the source url and a page number to form a valid url
+# this way we can set the number of pages to scrape 
+# instead of 'everything or nothing'
 def make_page_url(sourceurl,pagenumber):
 	return sourceurl + "page=" + str(pagenumber)
 
+# get all links to advisories
+# from a single html page
+# that contains a list of advisory links
 def get_urls_from_page(sourceurl,pagenumber,baseurl):
 	filename = make_page_url(sourceurl,pagenumber)
 
@@ -28,6 +34,10 @@ def get_urls_from_page(sourceurl,pagenumber,baseurl):
 		#D print(baseurl + url)
 	return urllist
 
+
+# obtains the advisories from a list of advisory url
+# titlestring is a string that indicates the advisory,
+# ie. a string with which we can identify the advisory
 def get_adv_from_links(urllist,titlestring):
 	# open link and find advisory
 	advisories = {}
@@ -35,7 +45,6 @@ def get_adv_from_links(urllist,titlestring):
 		#D print("Opening url: ",url)
 		soup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
 		advisory = soup.find(class_="advisoryitem")
-
 		
 		advisoryid = ""
 		for s in advisory.find("h2").strings:
@@ -64,6 +73,7 @@ def main():
 	sourcefile.close()
 
 	advisories = {}
+	# load advisories we already scraped
 	if os.path.isfile("data.txt"):
 		with open("data.txt","r") as infile:
 			advisories.update(json.load(infile))
@@ -71,7 +81,9 @@ def main():
 
 	new_adv = 0;
 
-	for i in range(1,1):
+	# scrape advisory links from list page
+	# then scrape new advisories from advisory links
+	for i in range(1,1): #determine how many pages we want to scrape
 		linklist = get_urls_from_page(starturl,i,baseurl)
 		#D print("linklist:",linklist);
 		new_advisories = (get_adv_from_links(linklist,titlestring))
@@ -86,8 +98,11 @@ def main():
 	print(len(advisories), "advisories in database.")
 	print(new_adv, "advisories added.")
 
+	# we write advisories to JSON-dump
 	with open('data.txt', 'w+') as outfile:
 		json.dump(advisories, outfile)
+
+	# a simple testcase for debugging
 	testcase = "NCSC-2016-0606 [1.00]"
 	parsefields = ['Titel','Advisory ID', 'Versie', 'Kans', 'CVE ID', 'Schade', 'Uitgiftedatum', 'Toepassing', 'Versie(s)', 'Platform(s)', 'Update', 'Gevolgen', 'Beschrijving', 'Mogelijke oplossingen', 'Hyperlinks', 'Vrijwaringsverklaring']
 	return advisories,testcase,parsefields
