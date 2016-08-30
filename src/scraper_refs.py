@@ -8,6 +8,11 @@ import os.path
 import re
 import pprint
 
+# betere aanpak
+# verzamel alle links die moeten worden gescrapet: url en referencing advisories
+# bepaal alle domeinen
+# scrape om en om, wissel tussen domeinen en doe 3 seconden tussen elk request. 
+
 def get_urls(advisory):
 	return re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', json.dumps(advisory))
 
@@ -32,7 +37,7 @@ def get_url_contents(advisory):
 				linkeditem['url'] = u
 				try:
 					print("Opening",u)
-					webpagestr = urllib.request.urlopen(u).read().decode('utf-8') #webpage to string
+					webpagestr = urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent': 'Pritchard/1.0 (data mining on security advisories, http://github.com/jd7h/pritchard)'}).read().decode('utf-8') #webpage to string
 					print("Success: opened",u)
 					webpagestr = webpagestr.replace("<br>","</br>")
 					print("Parsing",u)
