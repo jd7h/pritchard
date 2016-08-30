@@ -1,3 +1,4 @@
 src/source
 .swp
 src/*.txt
+*.json
