@@ -25,23 +25,25 @@ def get_url_contents(advisory):
 		for u in urls:
 			if ".pdf" in u:
 				print("Skipping:",u,"\t(pdf)")
-				break
-			linkeditem = {}
-			linkeditem['url'] = u
-			try:
-				print("Opening",u)
-				webpagestr = urllib.request.urlopen(u).read().decode('utf-8') #webpage to string
-				print("Success: opened",u)
-				webpagestr = webpagestr.replace("<br>","</br>")
-				print("Parsing",u)
-				c = str(BeautifulSoup(webpagestr,"html.parser"))
-				print("Success: parsed",u)
-				linkeditem['content'] = c
-				links.append(linkeditem)
-			except urllib.error.URLError:
-				print("Failed:",u,"\t(URLError)")
-			except:
-				print("Failed:",u,"\t(Unknown error") #fix this later
+			elif "cve.mitre.org" in u: # fix this later, cve.mitre.org keeps giving URLErrors for unknown reason
+				print("Skipping:",u,"\t(cve.mitre.org)")
+			else:
+				linkeditem = {}
+				linkeditem['url'] = u
+				try:
+					print("Opening",u)
+					webpagestr = urllib.request.urlopen(u).read().decode('utf-8') #webpage to string
+					print("Success: opened",u)
+					webpagestr = webpagestr.replace("<br>","</br>")
+					print("Parsing",u)
+					c = str(BeautifulSoup(webpagestr,"html.parser"))
+					print("Success: parsed",u)
+					linkeditem['content'] = c
+					links.append(linkeditem)
+				except urllib.error.URLError:
+					print("Failed:",u,"\t(URLError)")
+				except:
+					print("Failed:",u,"\t(Unknown error") #fix this later
 		advisory['related'] = links
 	return advisory
 
@@ -49,26 +51,18 @@ def main():
 	advisories = []
 
 	# we open our datafile
-	if os.path.isfile("primary_advisories_set1.json"):
-		with open("primary_advisories_set1.json","r") as infile:
+	if os.path.isfile("primary_advisories_set100.json"):
+		with open("primary_advisories_set100.json","r") as infile:
 			advisories = json.load(infile)
 			print("Loaded",len(advisories),"previously scraped advisories.")
 
-	'''
-	#write all urls to file
-	urls = get_all_urls(advisories)
-		
-	with open("urls.txt","w+") as outfile:
-		outfile.write("\n".join(urls))
-	'''
-
-
+	
 	# add all related content to advisory
 	for advisory in advisories:
 		get_url_contents(advisory)
 
 	# we write advisories to JSON-dump
-	with open('secondary_advisories_set1.json', 'w+') as outfile:
+	with open('secondary_advisories_set100.json', 'w+') as outfile:
 		json.dump(advisories, outfile)
 
 	return advisories
