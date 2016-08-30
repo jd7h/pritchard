@@ -18,10 +18,16 @@ def get_urls_from_page(sourceurl,pagenumber,baseurl):
 	filename = make_page_url(sourceurl,pagenumber)
 
 	# open url
-	webpage = urllib.request.urlopen(filename)
+	try:
+		webpage = urllib.request.urlopen(filename)
+	except:
+		print("Error: can't open",filename)
 	#D pagecontents = webpage.read()
 	#D print(pagecontents)
-	soup = BeautifulSoup(webpage, "html.parser")
+	try:	
+		soup = BeautifulSoup(webpage, "html.parser")
+	except:
+		print("Error: can't parse",filename)
 
 	# find links and make list
 	urllist = []
@@ -43,7 +49,18 @@ def get_adv_from_links(urllist,titlestring):
 	advisories = {}
 	for url in urllist:
 		#D print("Opening url: ",url)
-		soup = BeautifulSoup(urllib.request.urlopen(url),"html.parser")
+		try:
+			webpage = urllib.request.urlopen(url)
+		except:
+			print("Error: can't open",url)
+			break
+
+		try:
+			soup = BeautifulSoup(webpage,"html.parser")
+		except:
+			print("Error: can't parse",url)
+			break
+
 		advisory = soup.find(class_="advisoryitem")
 		
 		advisoryid = ""
@@ -74,8 +91,8 @@ def main():
 
 	advisories = {}
 	# load advisories we already scraped
-	if os.path.isfile("raw.txt"):
-		with open("raw.txt","r") as infile:
+	if os.path.isfile("rawdata.json"):
+		with open("rawdata.json","r") as infile:
 			advisories.update(json.load(infile))
 			print("Loaded previously scraped advisories.")
 
@@ -95,11 +112,11 @@ def main():
 	#for a in advisories:
 	#	print(a,advisories[a][0:100])
 
-	print(len(advisories), "advisories in database.")
+	print(len(advisories), "advisories scraped.")
 	print(new_adv, "advisories added.")
 
 	# we write advisories to JSON-dump
-	with open('raw.txt', 'w+') as outfile:
+	with open('rawdata.json', 'w+') as outfile:
 		json.dump(advisories, outfile)
 
 	return advisories
