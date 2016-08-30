@@ -12,10 +12,12 @@ and similarity to earlier advisories.
 
 ### Implemented functionality
 * simple scraper for primary advisories (scraper_adv.py)
-* parser for primary advisories (parser.py)
-* primary advisories are labeled, which enables supervised learning (parser.py)
-* parsed advisories are saved as JSON-object (parser.py)
-* url-extractor to find all urls present in the advisories (scraper_ref.py)
+* parser for primary advisories (parser_adv.py)
+* primary advisories are labeled, which enables supervised learning (parser_adv.py)
+* parsed advisories are saved as JSON-object (parser_adv.py)
+* scraper for all referenced webpages (scraper_ref.py)
+* url-extractor to find all urls present in the advisories (url_extractor.py)
+* running scripts in order builds dataset with primary and secondary advisories
 
 ```
 [jd7h@reinaert]$ cat urls.txt | cut -d'/' -f3 | sort | uniq -c | sort -nr | head 
@@ -32,7 +34,6 @@ and similarity to earlier advisories.
 ```
 
 ### Planned functionality
-* dataset with primary and secondary advisories
 * keyword analysis
 * frequency analysis
 
