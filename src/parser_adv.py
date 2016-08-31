@@ -7,17 +7,20 @@ import html
 # parses a raw advisory in string format s to a dictionary structure record
 def parse_advisory(s):
 	# fields from the raw advisories
-	fields = ['<pre>','Titel','Advisory ID', 'Versie', 'Kans', 'CVE ID', 'Schade', 'Uitgiftedatum', 'Toepassing', 'Versie(s)', 'Platform(s)','Update', 'Samenvatting', 'Gevolgen', 'Beschrijving', 'Mogelijke oplossingen', 'Hyperlinks', 'Vrijwaringsverklaring','-----BEGIN','restfooter']
+	fields = ['<pre>','Titel','Advisory ID', 'Versie', 'Kans', 'CVE ID', 'Schade', 'Uitgiftedatum', 'Toepassing', 'Versie(s)', 'Platform(s)','Update', 'Samenvatting', 'Gevolgen', 'Beschrijving', 'Mogelijke oplossingen', 'Hyperlinks', 'Vrijwaringsverklaring']
 	# fields that we want to use in our records
 	fields2 = ['header','title','id','version','chance','CVE','damage','date',
 		'application','application_version','platform','update','summary','consequences',
-		'description','solution','references','footer1','footer2','footer3']
+		'description','solution','references','footer1']
 	lhs = ""
 	rhs = s
 	record = {}
 	previousfield = 0 # variable that stores which field we encountered last
 	
-	for i in range(0,len(fields)-1):
+	#ugly but handy
+	#because we use len(fields), the last field is not saved (we save the last encountered field, which is at most i-1)
+	#This is okay because the last field (Vrijwaringsverklaring and beyond) does not contain data
+	for i in range(0,len(fields)):
 		#print("D: Splitting on",fields[i])
 		splitresult = rhs.split(fields[i],1) # split the string with field names as separator
 		if len(splitresult)<2: # if we don't find the separator				
@@ -41,6 +44,16 @@ def parse_advisory(s):
 	if len(splitresult)>1:
 		record['damage'],record['damage_description'] = splitresult
 
+	# set date to int
+	date = int(record['date'])
+	if date > 20100000 and date < 20170000:
+		record['date'] = int(record['date'])
+	else:
+		print("Error: invalid date",record['id'],record['date'])
+	
+	# set version to int
+	record['version'] int(record['version'])
+
 	return record
 
 # parse a list of raw string advisories to a list of dictionaries
@@ -55,8 +68,8 @@ def main():
 	advisories = {}
 
 	# open data.json
-	if os.path.isfile("rawdata_set1.json"):
-		with open("rawdata_set1.json","r") as infile:
+	if os.path.isfile("rawdata.json"):
+		with open("rawdata.json","r") as infile:
 			advisories.update(json.load(infile))
 			print("Loaded",len(advisories),"raw advisories for preprocessing.")
 

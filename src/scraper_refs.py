@@ -7,24 +7,15 @@ import json
 import os.path
 import re
 import pprint
+import url_extractor
 
 # betere aanpak
 # verzamel alle links die moeten worden gescrapet: url en referencing advisories
 # bepaal alle domeinen
 # scrape om en om, wissel tussen domeinen en doe 3 seconden tussen elk request. 
 
-def get_urls(advisory):
-	return re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', json.dumps(advisory))
-
-def get_all_urls(advisories):
-	urls = []
-	for a in advisories:
-		urls += get_urls(a)
-
-	return urls
-
 def get_url_contents(advisory):
-	urls = get_urls(advisory)
+	urls = url_extractor.get_urls(advisory)
 	if len(urls) > 0:
 		links = []
 		for u in urls:

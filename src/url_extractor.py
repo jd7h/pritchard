@@ -7,9 +7,10 @@ import json
 import os.path
 import re
 import pprint
+import url_marker
 
 def get_urls(advisory):
-	return re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', json.dumps(advisory))
+	return re.findall(url_marker.URL_REGEX, json.dumps(advisory))
 
 def get_all_urls(advisories):
 	urls = []
@@ -22,8 +23,8 @@ def main():
 	advisories = []
 
 	# we open our datafile
-	if os.path.isfile("primary_advisories_set100.json"):
-		with open("primary_advisories_set100.json","r") as infile:
+	if os.path.isfile("primary_advisories.json"):
+		with open("primary_advisories.json","r") as infile:
 			advisories = json.load(infile)
 			print("Loaded",len(advisories),"previously scraped advisories.")
 
@@ -33,6 +34,8 @@ def main():
 		
 	with open("urls.txt","w+") as outfile:
 		outfile.write("\n".join(urls))
+	with open("urls.json","w+") as outfile:
+		json.dump(urls,outfile)
 	
 	return urls
 
