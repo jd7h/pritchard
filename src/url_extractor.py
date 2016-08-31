@@ -10,7 +10,7 @@ import pprint
 import url_marker
 
 def get_urls(advisory):
-	return re.findall(url_marker.URL_REGEX, json.dumps(advisory))
+	return re.findall(url_marker.URL_REGEX_NO_NAKED, json.dumps(advisory))
 
 def get_all_urls(advisories):
 	urls = []
