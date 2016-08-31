@@ -14,34 +14,23 @@ import url_extractor
 # bepaal alle domeinen
 # scrape om en om, wissel tussen domeinen en doe 3 seconden tussen elk request. 
 
-def get_url_contents(advisory):
-	urls = url_extractor.get_urls(advisory)
-	if len(urls) > 0:
-		links = []
-		for u in urls:
-			if ".pdf" in u:
-				print("Skipping:",u,"\t(pdf)")
-			elif "cve.mitre.org" in u: # fix this later, cve.mitre.org keeps giving URLErrors for unknown reason
-				print("Skipping:",u,"\t(cve.mitre.org)")
-			else:
-				linkeditem = {}
-				linkeditem['url'] = u
-				try:
-					print("Opening",u)
-					webpagestr = urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent': 'Pritchard/1.0 (data mining on security advisories, http://github.com/jd7h/pritchard)'}).read().decode('utf-8') #webpage to string
-					print("Success: opened",u)
-					webpagestr = webpagestr.replace("<br>","</br>")
-					print("Parsing",u)
-					c = str(BeautifulSoup(webpagestr,"html.parser"))
-					print("Success: parsed",u)
-					linkeditem['content'] = c
-					links.append(linkeditem)
-				except urllib.error.URLError:
-					print("Failed:",u,"\t(URLError)")
-				except:
-					print("Failed:",u,"\t(Unknown error") #fix this later
-		advisory['related'] = links
-	return advisory
+# based on: http://stackoverflow.com/questions/1726402/in-python-how-do-i-use-urllib-to-see-if-a-website-is-404-or-200
+def open_url(u):
+	try:
+		conn = urllib.request.urlopen(urllib.request.Request(u["url"],headers={'User-Agent': 'Pritchard/1.0 (data mining on security advisories, http://github.com/jd7h/pritchard)'}))
+	except urllib.error.HTTPError as e:
+		# Return code error (e.g. 404, 501, ...)
+		u["status"] = e.code
+		return u	
+	except urllib.error.URLError as e:
+		# Not an HTTP-specific error (e.g. connection refused)
+		u["status"] = "URLError"
+		return u
+	else:
+		u["status"] = conn.getcode()
+		u["content"] = conn.read().decode('utf-8')
+		return u
+
 
 def main():
 	advisories = []
@@ -52,16 +41,23 @@ def main():
 			advisories = json.load(infile)
 			print("Loaded",len(advisories),"previously scraped advisories.")
 
+	#make set of urls
+	urls = set(url_extractor.get_all_urls(advisories))
+	urls = [{'url':u,'status':0,'content':''} for u in urls]
 	
-	# add all related content to advisory
-	for advisory in advisories:
-		get_url_contents(advisory)
+	for u in urls[10:20]:
+		open_url(u)
 
+	for u in urls[10:20]:
+		print(u["url"],u["status"],u["content"][:100])
+	
+	'''
 	# we write advisories to JSON-dump
 	with open('secondary_advisories_set100.json', 'w+') as outfile:
 		json.dump(advisories, outfile)
+	'''
 
-	return advisories
+	return 0
 
 
 if __name__ == "__main__":
