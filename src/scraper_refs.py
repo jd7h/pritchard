@@ -57,7 +57,11 @@ def scrape_references(references):
     print("Scraping references...")
     already_visited = 0
     scraped = 0
-    for ref in references:
+    for idx,ref in enumerate(references):
+        # write intermediary results to backup file
+        if idx % 25 == 0:
+            with open('inter-references.json', 'w+') as outfile:                               
+                json.dump(references, outfile)              
         if ref["status"] == 0:
             open_url(ref)
             scraped += 1
@@ -101,10 +105,6 @@ def main():
     #    print(new_urls[0])
 
     all_references = old_references + new_references
-
-    # write the references to JSON-dump
-    with open('references.json', 'w+') as outfile:
-        json.dump(all_references, outfile)
     
     scrape_references(all_references)
 
