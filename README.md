@@ -33,6 +33,20 @@ and similarity to earlier advisories.
      12 www.phpmyadmin.net
 ```
 
+```
+[judith@loki]$ python3 scraper_refs.py 
+Loaded 9363 previously scraped advisories.
+Loaded 15207 previously scraped references.
+old urls 15207
+new urls 0
+Scraping references...
+Scraping http://technet.microsoft.com/en-us/security/bulletin/ms12-073.mspx ...
+Scraping http://lists.opensuse.org/opensuse-security-announce/2015-01/msg00006.html ...
+Done scraping.
+Scraped: 2
+Already visited: 50
+```
+
 ### Planned functionality
 * keyword analysis
 * frequency analysis

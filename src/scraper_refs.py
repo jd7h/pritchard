@@ -17,29 +17,44 @@ def open_url(u):
     Given an url, open the url
     and register status code and contents
     """
-    if u["status"] == 0:
-        try:
-            conn = urllib.request.urlopen(
-                urllib.request.Request(u["url"], headers={
-                    'User-Agent': 'Pritchard/1.0 (data mining on security \
-                    advisories, http://github.com/jd7h/pritchard)'}))
-        except urllib.error.HTTPError as error:
-            # Return code error (e.g. 404, 501, ...)
-            u["status"] = error.code
+    # filter on certain filetypes
+    exclude = [".pdf",".tar.gz",".zip",".rar"]
+    for ext in exclude:
+        if ext in u["url"]:
+            u["status"] = ext
+            print(u["url"],"contains",ext,"\tskipping...")
             return u
-        except urllib.error.URLError as error:
-            # Not an HTTP-specific error (e.g. connection refused)
-            u["status"] = "URLError"
-            return u
-        else:
-            u["status"] = conn.getcode()
-            u["content"] = conn.read().decode('utf-8')
-            return u
+
+    if not ("http://" in u["url"] or "https://" in u["url"]):
+        u["url"] = "http://" + u["url"]
+
+    print("Scraping", u["url"], "...")
+    try:
+        conn = urllib.request.urlopen(
+            urllib.request.Request(u["url"], headers={
+                'User-Agent': 'Pritchard/1.0 (data mining on security \
+                advisories, http://github.com/jd7h/pritchard)'}))
+    except urllib.error.HTTPError as error:
+        # Return code error (e.g. 404, 501, ...)
+        u["status"] = error.code
+    except urllib.error.URLError as error:
+        # Not an HTTP-specific error (e.g. connection refused)
+        u["status"] = "URLError"
+    except:
+        u["status"] = "Unknown error"
     else:
-        return u #todo: register some kind of error
+        u["status"] = conn.getcode()
+        try:
+            u["content"] = conn.read().decode('utf-8')
+        except:
+            print("Read error for", u["url"])
+            u["status"] = str(u["status"]) + ", read error"
+    finally:
+        return u
 
 def scrape_references(references):
     """Take a set of references and scrape the urls of not-yet-scraped references"""
+    print("Scraping references...")
     already_visited = 0
     scraped = 0
     for ref in references:
@@ -79,15 +94,19 @@ def main():
     new_references = [{'url':u, 'status':0, 'content':''} for u in new_urls]
 
     print("old urls", len(old_urls))
-    if len(old_urls) != 0:
-        print(old_urls[0])
+    #if len(old_urls) != 0:
+    #    print(old_urls[0])
     print("new urls", len(new_urls))
-    if len(new_urls) != 0:
-        print(new_urls[0])
+    #if len(new_urls) != 0:
+    #    print(new_urls[0])
 
     all_references = old_references + new_references
 
-    scrape_references(all_references[:20])
+    # write the references to JSON-dump
+    with open('references.json', 'w+') as outfile:
+        json.dump(all_references, outfile)
+    
+    scrape_references(all_references)
 
     # write the references to JSON-dump
     with open('references.json', 'w+') as outfile:
