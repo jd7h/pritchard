@@ -60,7 +60,7 @@ def parse_advisory(s):
         print("Error: invalid date", record['id'], record['date'])
 
     # set version to int
-    record['version'] = int(record['version'])
+    record['version'] = int(record['version'].split('.',1)[1])
 
     return record
 
