@@ -6,6 +6,7 @@ import json
 import os.path
 import time
 import url_extractor
+import filtered_filetypes
 
 # betere aanpak
 # verzamel alle links die moeten worden gescrapet: url en referencing advisories
@@ -18,7 +19,7 @@ def open_url(u):
     and register status code and contents
     """
     # filter on certain filetypes
-    exclude = [".pdf",".tar.gz",".zip",".rar"]
+    exclude = filtered_filetypes.FILTERED_FILETYPES
     for ext in exclude:
         if ext in u["url"]:
             u["status"] = ext
