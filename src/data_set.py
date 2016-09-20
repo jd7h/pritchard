@@ -1,9 +1,13 @@
+import glob
+import json
+
 def load(path):
     # open the earlier results                                                   
      data = []                                                                    
      data_set_paths = glob.glob(path)                      
      # open them in order                                                         
      data_set_paths.sort(key=lambda path : int(path.split("_")[1].split(".")[0])) 
+     print(data_set_paths)
      for path in data_set_paths:                                                  
          print("Opening",path)                                                    
          try:                                                                     
@@ -11,6 +15,7 @@ def load(path):
                  data_set = json.load(infile)                                     
          except Exception as e:                                                   
              print(type(e))                                                       
+             print(e)
              print("Error in dataset",path)                                       
              continue                                                             
          else:                                                                    

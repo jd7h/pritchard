@@ -7,6 +7,9 @@ import os.path
 import time
 import url_extractor
 import filtered_filetypes
+import glob
+import math
+import data_set
 
 # betere aanpak
 # verzamel alle links die moeten worden gescrapet: url en referencing advisories
@@ -58,23 +61,31 @@ def scrape_references(references):
     print("Scraping references...")
     already_visited = 0
     scraped = 0
+    backup_interval = 100
+    save_interval = 1000
+    data_set_size = 1000
     for idx,ref in enumerate(references):
         # write intermediary results to backup file
-        if idx % 25 == 0:
-            with open('inter-references.json', 'w+') as outfile:                               
-                json.dump(references, outfile)              
+        if scraped % backup_interval == 0 and scraped != 0:
+            print("Dumping",scraped,"new results to backup.")
+            data_set.dump(references,"../data/temp/temp_",data_set_size)
+        if idx % save_interval == 0 and idx != 0:
+            print("Dumping",idx,"processed results to data set.")
+            data_set.dump(references,"../data/references_",data_set_size)
+        # scrape unvisited urls
         if ref["status"] == 0:
             open_url(ref)
             scraped += 1
             time.sleep(3)
         else:
             already_visited += 1
+    #print stats
     print("Done scraping.")
     print("Scraped:", scraped)
     print("Already visited:", already_visited)
     return references
 
-def main():
+def first_time():
     """Open primary advisories, obtain all urls and scrape all those webpages."""
     advisories = []
 
@@ -115,6 +126,17 @@ def main():
 
     return 0
 
+def continue_scraping():
+    # we want to continue scraping after an earlier version crashed
+    # we have inbetween results in ../data/
+
+    # open the earlier results
+    data = data_set.load("../data/references*.json")
+    # and continue
+    #data = scrape_references(data)
+
+def main():
+    continue_scraping()
 
 if __name__ == "__main__":
     main()
