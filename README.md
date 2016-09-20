@@ -12,16 +12,16 @@ and similarity to earlier advisories.
 
 ### Implemented functionality
 * Building the dataset
-        * simple scraper for primary advisories (scraper_adv.py)
-        * parser for primary advisories (parser_adv.py)
-        * primary advisories are labeled, which enables supervised learning (parser_adv.py)
-        * parsed advisories are saved as JSON-object (parser_adv.py)
-        * scraper for all referenced webpages (scraper_ref.py)
-        * url-extractor to find all urls present in the advisories (url_extractor.py)
-        * error-logging
-        * small module for loading and dumping datasets
+  * simple scraper for primary advisories (scraper_adv.py)
+  * parser for primary advisories (parser_adv.py)
+  * primary advisories are labeled, which enables supervised learning (parser_adv.py)
+  * parsed advisories are saved as JSON-object (parser_adv.py)
+  * scraper for all referenced webpages (scraper_ref.py)
+  * url-extractor to find all urls present in the advisories (url_extractor.py)
+  * error-logging
+  * small module for loading and dumping datasets
 * Exploring the dataset
-        * Small report of url statuses (reference_report.py)
+  * Small report of url statuses (reference_report.py)
 
 ```
 [jd7h@reinaert]$ cat urls.txt | cut -d'/' -f3 | sort | uniq -c | sort -nr | head 
