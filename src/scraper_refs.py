@@ -54,7 +54,10 @@ def open_url(u):
         logging.debug("HTTP-code %s",conn.getcode())
         try:
             logging.debug("Reading contents of %s",u["url"])
-            u["content"] = conn.read()
+            if not conn.headers.get_content_charset() is None:
+                u["content"] = conn.read().decode(conn.headers.get_content_charset())
+            else:
+                u["content"] = conn.read().decode()
         except Exception as e:
             logging.error("Read error for %s: %s", u["url"],repr(e))
             u["status"] = str(u["status"]) + ", " + repr(e)
@@ -66,10 +69,20 @@ def scrape_references(references):
     logging.info("Scraping references...")
     already_visited = 0
     scraped = 0
-    backup_interval = 100
+    backup_interval = 10
     save_interval = 1000
     data_set_size = 1000
     for idx,ref in enumerate(references):
+        # incrementing intervals for debugging
+        if idx == 201:
+            backup_interval = 50
+            logging.info("Changing backup interval to %d",backup_interval)
+        if idx == 751:
+            backup_interval = 100
+            logging.info("Changing backup interval to %d",backup_interval)
+        if idx == 1501:
+            backup_interval = 200
+            logging.info("Changing backup interval to %d",backup_interval)
         # write intermediary results to backup file
         if scraped % backup_interval == 0 and scraped != 0:
             logging.info("Dumping %d new results to backup.",scraped)
