@@ -11,13 +11,17 @@ based on the occurence of certain keywords in the document
 and similarity to earlier advisories. 
 
 ### Implemented functionality
-* simple scraper for primary advisories (scraper_adv.py)
-* parser for primary advisories (parser_adv.py)
-* primary advisories are labeled, which enables supervised learning (parser_adv.py)
-* parsed advisories are saved as JSON-object (parser_adv.py)
-* scraper for all referenced webpages (scraper_ref.py)
-* url-extractor to find all urls present in the advisories (url_extractor.py)
-* running scripts in order builds dataset with primary and secondary advisories
+* Building the dataset
+        * simple scraper for primary advisories (scraper_adv.py)
+        * parser for primary advisories (parser_adv.py)
+        * primary advisories are labeled, which enables supervised learning (parser_adv.py)
+        * parsed advisories are saved as JSON-object (parser_adv.py)
+        * scraper for all referenced webpages (scraper_ref.py)
+        * url-extractor to find all urls present in the advisories (url_extractor.py)
+        * error-logging
+        * small module for loading and dumping datasets
+* Exploring the dataset
+        * Small report of url statuses (reference_report.py)
 
 ```
 [jd7h@reinaert]$ cat urls.txt | cut -d'/' -f3 | sort | uniq -c | sort -nr | head 
@@ -33,21 +37,10 @@ and similarity to earlier advisories.
      12 www.phpmyadmin.net
 ```
 
-```
-[judith@loki]$ python3 scraper_refs.py 
-Loaded 9363 previously scraped advisories.
-Loaded 15207 previously scraped references.
-old urls 15207
-new urls 0
-Scraping references...
-Scraping http://technet.microsoft.com/en-us/security/bulletin/ms12-073.mspx ...
-Scraping http://lists.opensuse.org/opensuse-security-announce/2015-01/msg00006.html ...
-Done scraping.
-Scraped: 2
-Already visited: 50
-```
-
 ### Planned functionality
+* reference-page HTML parsing
+* bag of words representation for references
+* linking the advisories and the references
 * keyword analysis
 * frequency analysis
 
