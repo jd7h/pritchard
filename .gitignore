@@ -3,3 +3,4 @@ src/source
 src/*.txt
 *.json
 data/
+*.log
