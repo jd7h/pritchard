@@ -41,18 +41,16 @@ def open_url(u):
     except urllib.error.HTTPError as error:
         # Return code error (e.g. 404, 501, ...)
         u["status"] = error.code
-    except urllib.error.URLError as error:
-        # Not an HTTP-specific error (e.g. connection refused)
-        u["status"] = "URLError"
-    except:
-        u["status"] = "Unknown error"
+    except Exception as e:
+        print("Error for", u["url"],repr(e))
+        u["status"] = repr(e)
     else:
         u["status"] = conn.getcode()
         try:
-            u["content"] = conn.read().decode('utf-8')
-        except:
-            print("Read error for", u["url"])
-            u["status"] = str(u["status"]) + ", read error"
+            u["content"] = conn.read()
+        except Exception as e:
+            print("Error for", u["url"],repr(e))
+            u["status"] = str(u["status"]) + ", " + repr(e)
     finally:
         return u
 
@@ -83,60 +81,45 @@ def scrape_references(references):
     print("Done scraping.")
     print("Scraped:", scraped)
     print("Already visited:", already_visited)
+    data_set.dump(references,"../data/references_",data_set_size)
     return references
 
-def first_time():
+def build_url_set(advisory_path,data_set_path):
     """Open primary advisories, obtain all urls and scrape all those webpages."""
     advisories = []
 
-    # we open our datafile
-    if os.path.isfile("primary_advisories.json"):
-        with open("primary_advisories.json", "r") as infile:
+    # we open our datafile with advisories
+    # the advisories provide the urls for scraping
+    if os.path.isfile(advisory_path):
+        with open(advisory_path, "r") as infile:
             advisories = json.load(infile)
             print("Loaded", len(advisories), "previously scraped advisories.")
 
-    old_urls = []
+    # open earlier scraped references and urls
     old_references = []
+    old_urls = []
 
-    # open earlier scraped urls
-    if os.path.isfile("references.json"):
-        with open("references.json", "r") as infile:
-            old_references = json.load(infile)
-            print("Loaded", len(old_references), "previously scraped references.")
-            old_urls = [u["url"] for u in old_references]
+    old_references = data_set.load(data_set_path)
+    print("Loaded", len(old_references), "previously scraped references.")
+    old_urls = [u["url"] for u in old_references]
 
     #make set of new urls
     new_urls = [url for url in set(url_extractor.get_all_urls(advisories)) if url not in old_urls]
     new_references = [{'url':u, 'status':0, 'content':''} for u in new_urls]
 
     print("old urls", len(old_urls))
-    #if len(old_urls) != 0:
-    #    print(old_urls[0])
     print("new urls", len(new_urls))
-    #if len(new_urls) != 0:
-    #    print(new_urls[0])
 
     all_references = old_references + new_references
     
-    scrape_references(all_references)
-
-    # write the references to JSON-dump
-    with open('references.json', 'w+') as outfile:
-        json.dump(all_references, outfile)
-
-    return 0
-
-def continue_scraping():
-    # we want to continue scraping after an earlier version crashed
-    # we have inbetween results in ../data/
-
-    # open the earlier results
-    data = data_set.load("../data/references*.json")
-    # and continue
-    #data = scrape_references(data)
+    return all_references
 
 def main():
-    continue_scraping()
+    print("Building data set.")
+    data = build_url_set("primary_advisories.json","../data/references_*.json")
+    print("Start scraping phase.")
+    scrape_references(data)
+    return data
 
 if __name__ == "__main__":
     main()

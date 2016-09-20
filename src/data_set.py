@@ -1,4 +1,5 @@
 import glob
+import math
 import json
 
 def load(path):
@@ -21,6 +22,7 @@ def load(path):
          else:                                                                    
              data.extend(data_set)                                                
      print("Dataset contains",len(data),"records.")             
+     return data
 
 def dump(data,pathprefix,data_set_size=1000):                                                                  
      # dump data to seperate files to fix memory errors                                                                     
