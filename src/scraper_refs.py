@@ -31,24 +31,20 @@ def open_url(u):
             logging.warning("%s contains %s",u["url"],ext)
             return u
 
-    if not ("http://" in u["url"] or "https://" in u["url"]):
-        logging.warning("%s does not contains http:// or https://",u["url"])
-        logging.warning("adding http:// to %s",u["url"])
-        u["url"] = "http://" + u["url"]
-
     logging.info("Scraping %s ...", u["url"])
     try:
         conn = urllib.request.urlopen(
             urllib.request.Request(u["url"], headers={
                 'User-Agent': 'Pritchard/1.0 (data mining on security \
-                advisories, http://github.com/jd7h/pritchard)'}))
+                advisories, http://github.com/jd7h/pritchard)'}),timeout=60)
     except urllib.error.HTTPError as error:
         # Return code error (e.g. 404, 501, ...)
         logging.debug("HTTP-code %s",error.code)
         u["status"] = error.code
     except Exception as e:
-        logging.error("Error for %s: %s", u["url"],repr(e))
-        u["status"] = repr(e)
+        logging.error("%s error for %s",type(e),u["url"])
+        logging.debug("repr(e) = %s",repr(e))
+        u["status"] = str(type(e))
     else:
         u["status"] = conn.getcode()
         logging.debug("HTTP-code %s",conn.getcode())
@@ -59,8 +55,9 @@ def open_url(u):
             else:
                 u["content"] = conn.read().decode()
         except Exception as e:
-            logging.error("Read error for %s: %s", u["url"],repr(e))
-            u["status"] = str(u["status"]) + ", " + repr(e)
+            logging.error("Read error for %s: %s",u["url"],type(e))
+            logging.debug("repr(e) = %s",repr(e))
+            u["status"] = str(u["status"]) + ", " + type(e)
     finally:
         return u
 
@@ -94,7 +91,7 @@ def scrape_references(references):
         if ref["status"] == 0:
             open_url(ref)
             scraped += 1
-            time.sleep(3)
+            time.sleep(1)
         else:
             already_visited += 1
     #print stats
@@ -123,8 +120,16 @@ def build_url_set(advisory_path,data_set_path):
     logging.info("Loaded %d previously scraped references", len(old_references))
     old_urls = [u["url"] for u in old_references]
 
-    #make set of new urls
-    new_urls = [url for url in set(url_extractor.get_all_urls(advisories)) if url not in old_urls]
+    # make set of new urls and 
+    # check for http-prefix to avoid duplicates with and without http://
+    new_urls = [url for url in set(url_extractor.get_all_urls(advisories))]
+    for u in new_urls:
+        if not ("http://" in u or "https://" in u):
+            logging.warning("%s does not contains http:// or https://",u)
+            logging.warning("adding http:// to %s",u)
+            u = "http://" + u
+    new_urls = [url for url in new_urls if url not in old_urls]
+    
     new_references = [{'url':u, 'status':0, 'content':''} for u in new_urls]
 
     logging.info("%d old urls from datasets in %s",len(old_urls),data_set_path)
