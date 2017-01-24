@@ -3,6 +3,7 @@
 import json
 import os.path
 import html
+import logging
 
 def parse_advisory(s):
     """Parse a raw string advisory to a dictionary"""
@@ -22,23 +23,20 @@ def parse_advisory(s):
     record = {}
     previousfield = 0 # variable that stores which field we encountered last
 
-
     #Ugly but handy: because we use len(fields), the last field is not saved
     #(we save the last encountered field, which is at most i-1).
     #This is okay because the last field (Vrijwaringsverklaring and beyond)
     #does not contain data
 
     for i in range(0, len(fields)):
-        #print("D: Splitting on", fields[i])
+        logging.debug("splitting on %s", fields[i])
         splitresult = rhs.split(fields[i], 1) # split the string with field names as separator
         if len(splitresult) < 2: # if we don't find the separator
             record[fields2[i]] = "" # then the next field is not part of the record
         else:
             lhs, rhs = splitresult
-            #print("D: Left:", lhs)
             lhs = "".join(lhs.split("\r\n      ")) #sanitize the string from line breaks in urls
             lhs = " ".join("".join(" ".join(lhs.split()).split("\r")).split("\n")) #sanitize the string from whitespace and breaks
-            #print("D: Right:", rhs)
             if i > 0:
                 record[fields2[previousfield]] = html.unescape(lhs)
                 previousfield = i
@@ -54,10 +52,10 @@ def parse_advisory(s):
 
     # set date to int
     date = int(record['date'])
-    if date > 20100000 and date < 20170000:
+    if date > 20100000 and date < 20200000:
         record['date'] = int(record['date'])
     else:
-        print("Error: invalid date", record['id'], record['date'])
+        logging.error("invalid date in record %s: %s", record['id'], record['date'])
 
     # set version to int
     record['version'] = int(record['version'].split('.',1)[1])
@@ -66,7 +64,7 @@ def parse_advisory(s):
 
 def parse(advisories):
     """parse a list of raw string advisories to a list of dictionaries"""
-    print("Parsing", len(advisories), "advisories.")
+    logging.info("parsing %d raw advisories", len(advisories))
     records = []
     for adv in advisories:
         records.append(parse_advisory(advisories[adv]))
@@ -77,19 +75,25 @@ def main():
     Open raw data, parse all string advisories to dictionary
     and write the result to a JSON-file.
     """
+    # logging
+    logging.basicConfig(format='%(asctime)s %(levelname)s: parser_adv %(message)s',filename='../pritchard.log',level=logging.INFO)
+
     advisories = {}
+    raw_filename = "../../data/primary.json"
+    parsed_filename = "../../data/primary_parsed.json"
 
     # open data.json
-    if os.path.isfile("rawdata.json"):
-        with open("rawdata.json", "r") as infile:
+    if os.path.isfile(raw_filename):
+        with open(raw_filename, "r") as infile:
             advisories.update(json.load(infile))
-            print("Loaded", len(advisories), "raw advisories for preprocessing.")
+            logging.info("Loaded %d raw advisories for parsing from %s", len(advisories), raw_filename)
 
     # parse all advisories from data.json
     records = parse(advisories)
 
     # write advisories to another JSON-dump
-    with open('primary_advisories.json', 'w+') as outfile:
+    logging.info("Writing %d parsed advisories to %s", len(records), parsed_filename)
+    with open(parsed_filename, 'w+') as outfile:
         json.dump(records, outfile)
 
     return advisories, records
