@@ -1,4 +1,9 @@
 src/source
+*.swp
+*.pyc
+*.out
+*.log
+*.config
 .swp
 src/*.txt
 *.json
