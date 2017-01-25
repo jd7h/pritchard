@@ -10,10 +10,14 @@ an impact score to a security advisory,
 based on the occurence of certain keywords in the document
 and similarity to earlier advisories. 
 
+### Todo
+* All code through pylint
+* Remove all references to json
+
 ### Implemented functionality
 * Building the dataset
-  * simple scraper for primary advisories (scraper_adv.py)
-  * parser for primary advisories (parser_adv.py)
+  * simple scraper for primary advisories with logging (scraper_adv.py)
+  * parser for primary advisories with logging (parser_adv.py)
   * primary advisories are labeled, which enables supervised learning (parser_adv.py)
   * parsed advisories are saved as JSON-object (parser_adv.py)
   * scraper for all referenced webpages (scraper_ref.py)
@@ -22,6 +26,7 @@ and similarity to earlier advisories.
   * small module for loading and dumping datasets
 * Exploring the dataset
   * Small report of url statuses (reference_report.py)
+  * bag of words representation for references
 
 ```
 [jd7h@reinaert]$ cat urls.txt | cut -d'/' -f3 | sort | uniq -c | sort -nr | head 
@@ -57,8 +62,6 @@ and similarity to earlier advisories.
 ```
 
 ### Planned functionality
-* reference-page HTML parsing
-* bag of words representation for references
 * linking the advisories and the references
 * keyword analysis
 * frequency analysis
