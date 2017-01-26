@@ -76,11 +76,31 @@ def bag_of_words(text):
     text = textmaker.handle(text)
     
     # from http://www.nltk.org/book/ch03.html 3.7 Regular Expressions for Tokenizing Text
-    wordlist = re.findall(r"\w+(?:[-']\w+)*|'|[-.(]+|\S\w*", text) 
+    wordlist = re.findall(r"\w+(?:[-']\w+)*|'|[-.(!\":;]+|\S\w*", text) 
 
     #todo tokenize: add spaces for 
     words = clean_words(wordlist)
     return count(words)
+
+def combine_bow(bow1,bow2):
+    for key in bow2.keys():
+        if key not in bow1.keys():
+            bow1[key] = bow2[key]
+        else:
+            bow1[key] += bow2[key]
+    return bow1
+
+# combines the bows from urls from advisory p
+# refs should be a dictionary with urls as keys
+def combine_adv(p,refd):
+    keys = refd.keys()
+    for (u,parsed) in p["urls"]:
+        if u in keys and not parsed:
+            if "rbow" not in p.keys():
+                p["rbow"] = refd[u]["bow"]
+            else:
+                p["rbow"] = combine_bow(p["rbow"],refd[u]["bow"])
+    return p
 
 def superbag(documents):
     superbag = {}
