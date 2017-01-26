@@ -33,6 +33,7 @@ def clean_word(word):
     # only lowercase
     word = word.lower()
 
+    word = word.replace(".","_DOT_").replace("$","_DOLLARSIGN_").replace("\x00","_NULLBYTE_") # mongodb doesnt like dollarsigns and dots in dict keys
     return word
 
 def clean_words(list_of_words):
