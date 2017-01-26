@@ -48,12 +48,20 @@ def count(list_of_words):
             count[word] += 1
     return count
 
-def bag_of_words(document):
+def adv_bag_of_words(advisory):
+    print("Bag of words for advisory",advisory['id'])
+    logging.debug("Bag of words for advisory %s",advisory['id'])
+    wanted_keys = ["title", "application", "platform", "references", "update", "summary", "description", "summary", "consequences", "description"]
+    text = " ".join([advisory[k] for k in wanted_keys])
+    return bag_of_words(text)
+
+def ref_bag_of_words(document):
     print("Bag of words for",document['url'])
     logging.debug("Bag of words for %s",document['url'])
-
     text = document['content']
-    
+    return bag_of_words(text)
+
+def bag_of_words(text):
     # method 1 (lots of garbage from script and style
     #soup = BeautifulSoup(text,"html.parser")
     #text = soup.get_text()
