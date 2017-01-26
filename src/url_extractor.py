@@ -5,10 +5,17 @@ import json
 import os.path
 import re
 import url_marker
+import logging
 
 def get_urls(advisory):
     """Given an advisory (dictionary), return a list with contained urls."""
-    return re.findall(url_marker.URL_REGEX_NO_NAKED, json.dumps(advisory))
+    urls = re.findall(url_marker.URL_REGEX_NO_NAKED, json.dumps(advisory))
+    for u in urls:
+         if not ("http://" in u or "https://" in u):
+             logging.warning("%s does not contains http:// or https://",u)
+             logging.warning("adding http:// to %s",u)
+             u = "http://" + u
+    return urls
 
 def get_all_urls(advisories):
     """Given a list of advisories, return a list with all contained urls."""

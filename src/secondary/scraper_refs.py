@@ -123,11 +123,6 @@ def build_url_set(advisory_path,data_set_path):
     # make set of new urls and 
     # check for http-prefix to avoid duplicates with and without http://
     new_urls = [url for url in set(url_extractor.get_all_urls(advisories))]
-    for u in new_urls:
-        if not ("http://" in u or "https://" in u):
-            logging.warning("%s does not contains http:// or https://",u)
-            logging.warning("adding http:// to %s",u)
-            u = "http://" + u
     new_urls = [url for url in new_urls if url not in old_urls]
     
     new_references = [{'url':u, 'status':0, 'content':''} for u in new_urls]
