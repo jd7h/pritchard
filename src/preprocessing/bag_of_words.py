@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import logging
 import re
 import html2text
+import nltk
 
 # deprecated
 def clean_html(html):
@@ -77,10 +78,21 @@ def bag_of_words(text):
     textmaker.ignore_emphasis = True;
     text = textmaker.handle(text)
     
+    '''
     # from http://www.nltk.org/book/ch03.html 3.7 Regular Expressions for Tokenizing Text
     wordlist = re.findall(r"\w+(?:[-']\w+)*|'|[-.(!\":;]+|\S\w*", text) 
+    '''
 
-    #todo tokenize: add spaces for 
+    # from http://www.nltk.org/book/ch03.html 3.7 Regular Expressions for Tokenizing Text
+    pattern = r'''(?x)      # set flag to allow verbose regexps
+          ([A-Z]\.)+        # abbreviations, e.g. U.S.A.
+        | \w+([-_]\w+)*     # words with optional internal hyphens
+        | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
+        | \.\.\.            # ellipsis
+        | [][.,;"'?():-_`]  # these are separate tokens; includes ], [
+        '''
+    wordlist = nltk.regexp_tokenize(text, pattern)
+
     words = clean_words(wordlist)
     return count(words)
 

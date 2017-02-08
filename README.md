@@ -13,6 +13,8 @@ and similarity to earlier advisories.
 ### Todo
 * All code through pylint
 * Remove all references to json
+* Remove deprecated functions
+* Re-run bag-of-words on references with new nltk tokenizer
 
 ### Implemented functionality
 * Building the dataset
@@ -27,6 +29,9 @@ and similarity to earlier advisories.
 * Exploring the dataset
   * Small report of url statuses (reference_report.py)
   * bag of words representation for references
+* Preprocessing
+  * Unscraped references are removed
+  * Calculating the most significant keywords for each rating (bin)
 
 ```
 [jd7h@reinaert]$ cat urls.txt | cut -d'/' -f3 | sort | uniq -c | sort -nr | head 
@@ -42,29 +47,9 @@ and similarity to earlier advisories.
      12 www.phpmyadmin.net
 ```
 
-```
-2016-09-20 17:35:32,711 INFO:------------ SCRAPER REFS -----------------
-2016-09-20 17:35:32,712 INFO:Building data set.
-2016-09-20 17:35:32,847 INFO:Loaded 9363 previously scraped advisories
-2016-09-20 17:35:32,847 INFO:Opening ../data/references_*.json
-2016-09-20 17:35:32,848 INFO:Loaded 0 previously scraped references
-2016-09-20 17:35:35,484 INFO:0 old urls from datasets in ../data/references_*.json
-2016-09-20 17:35:35,484 INFO:15207 new urls from advisories in primary_advisories.json
-2016-09-20 17:35:35,495 INFO:Start scraping phase.
-2016-09-20 17:35:35,495 INFO:Scraping references...
-2016-09-20 17:35:35,495 INFO:Scraping http://lists.centos.org/pipermail/centos-announce/2013-February/019230.html ...
-2016-09-20 17:35:45,952 INFO:Scraping https://blogs.oracle.com/sunsecurity/entry/cve_2012_2337_restriction_bypass ...
-2016-09-20 17:35:49,899 INFO:Scraping http://www.ubuntu.com/usn/usn-3055-1/ ...
-(...)
-2016-09-20 17:36:17,398 INFO:Dumping 10 new results to backup.
-(...)
-2016-09-20 17:36:23,799 INFO:Dumped data to 15 files
-```
-
 ### Planned functionality
-* linking the advisories and the references
-* keyword analysis
-* frequency analysis
+* Keyword selection
+* Classifier based on the n most significant keywords
 
 ### Inspiration
 Years ago, I had to do a machine learning project at university. I found [this comprehensive blogpost](http://www.drbunsen.org/beer-selection/) by Seth from drbunsen.org. The article contains an analysis of the RateBeer database from 2013. This article (and my data mining project, in which I used the same database) sparked my interest in natural language processing and text analysis with machine learning.
