@@ -3,6 +3,7 @@ import logging
 import re
 import html2text
 
+# deprecated
 def clean_html(html):
     """
     Copied from NLTK package.
@@ -48,6 +49,7 @@ def count(list_of_words):
             count[word] += 1
     return count
 
+# deprecated
 def adv_bag_of_words(advisory):
     print("Bag of words for advisory",advisory['id'])
     logging.debug("Bag of words for advisory %s",advisory['id'])
@@ -90,6 +92,7 @@ def combine_bow(bow1,bow2):
             bow1[key] += bow2[key]
     return bow1
 
+# deprecated
 # combines the bows from urls from advisory p
 # refs should be a dictionary with urls as keys
 def combine_adv(p,refd):
@@ -102,6 +105,8 @@ def combine_adv(p,refd):
                 p["rbow"] = combine_bow(p["rbow"],refd[u]["bow"])
     return p
 
+# for statistics over a list of documents with
+# a bag of words representation
 def superbag(documents):
     superbag = {}
     for document in documents:
